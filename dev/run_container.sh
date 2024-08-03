@@ -7,7 +7,7 @@ PORTAINER_FLAGS=${PORTAINER_FLAGS:-}
 
 docker rm -f portainer
 
-docker run -d \
+docker run \
   -p 8000:8000 \
   -p 9000:9000 \
   -p 9443:9443 \

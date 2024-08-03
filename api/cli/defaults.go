@@ -20,4 +20,5 @@ const (
 	defaultSSL                 = "false"
 	defaultBaseURL             = "/"
 	defaultSecretKeyName       = "portainer"
+	defaultIsPodman            = "false"
 )

@@ -132,6 +132,7 @@ type (
 		SecretKeyName             *string
 		LogLevel                  *string
 		LogMode                   *string
+		IsPodman                  *bool
 	}
 
 	// CustomTemplateVariableDefinition

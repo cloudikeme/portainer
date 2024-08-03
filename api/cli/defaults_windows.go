@@ -18,4 +18,5 @@ const (
 	defaultSnapshotInterval    = "5m"
 	defaultBaseURL             = "/"
 	defaultSecretKeyName       = "portainer"
+	defaultIsPodman            = "false"
 )

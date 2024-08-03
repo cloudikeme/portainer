@@ -61,7 +61,7 @@ func initEndpoint(flags *portainer.CLIFlags, dataStore dataservices.DataStore, s
 		return createTLSSecuredEndpoint(flags, dataStore, snapshotService)
 	}
 
-	return createUnsecuredEndpoint(*flags.EndpointURL, dataStore, snapshotService)
+	return createUnsecuredEndpoint(flags, dataStore, snapshotService)
 }
 
 func createTLSSecuredEndpoint(flags *portainer.CLIFlags, dataStore dataservices.DataStore, snapshotService portainer.SnapshotService) error {
@@ -78,6 +78,8 @@ func createTLSSecuredEndpoint(flags *portainer.CLIFlags, dataStore dataservices.
 		tlsConfiguration.TLS = true
 	}
 
+	containerEngine := getContainerEngine(*flags.IsPodman)
+
 	endpointID := dataStore.Endpoint().GetNextIdentifier()
 	endpoint := &portainer.Endpoint{
 		ID:                 portainer.EndpointID(endpointID),
@@ -85,6 +87,7 @@ func createTLSSecuredEndpoint(flags *portainer.CLIFlags, dataStore dataservices.
 		URL:                *flags.EndpointURL,
 		GroupID:            portainer.EndpointGroupID(1),
 		Type:               portainer.DockerEnvironment,
+		ContainerEngine:    containerEngine,
 		TLSConfig:          tlsConfiguration,
 		UserAccessPolicies: portainer.UserAccessPolicies{},
 		TeamAccessPolicies: portainer.TeamAccessPolicies{},
@@ -134,12 +137,15 @@ func createTLSSecuredEndpoint(flags *portainer.CLIFlags, dataStore dataservices.
 	return dataStore.Endpoint().Create(endpoint)
 }
 
-func createUnsecuredEndpoint(endpointURL string, dataStore dataservices.DataStore, snapshotService portainer.SnapshotService) error {
+func createUnsecuredEndpoint(flags *portainer.CLIFlags, dataStore dataservices.DataStore, snapshotService portainer.SnapshotService) error {
+	endpointURL := *flags.EndpointURL
 	if strings.HasPrefix(endpointURL, "tcp://") {
 		if _, err := client.ExecutePingOperation(endpointURL, nil); err != nil {
 			return err
 		}
 	}
+
+	containerEngine := getContainerEngine(*flags.IsPodman)
 
 	endpointID := dataStore.Endpoint().GetNextIdentifier()
 	endpoint := &portainer.Endpoint{
@@ -148,6 +154,7 @@ func createUnsecuredEndpoint(endpointURL string, dataStore dataservices.DataStor
 		URL:                endpointURL,
 		GroupID:            portainer.EndpointGroupID(1),
 		Type:               portainer.DockerEnvironment,
+		ContainerEngine:    containerEngine,
 		TLSConfig:          portainer.TLSConfiguration{},
 		UserAccessPolicies: portainer.UserAccessPolicies{},
 		TeamAccessPolicies: portainer.TeamAccessPolicies{},
@@ -178,4 +185,12 @@ func createUnsecuredEndpoint(endpointURL string, dataStore dataservices.DataStor
 	}
 
 	return dataStore.Endpoint().Create(endpoint)
+}
+
+func getContainerEngine(isPodman bool) string {
+	if isPodman {
+		return portainer.ContainerEnginePodman
+	}
+
+	return portainer.ContainerEngineDocker
 }
