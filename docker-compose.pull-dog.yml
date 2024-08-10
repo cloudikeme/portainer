@@ -1,4 +1,3 @@
-
 services:
   portainer:
     image: portainerci/portainer:$PORTAINER_TAG
